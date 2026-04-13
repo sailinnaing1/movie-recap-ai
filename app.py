@@ -1,35 +1,24 @@
 import streamlit as st
 import google.generativeai as genai
 
-# ၁။ Secrets ထဲက API Key ကို ယူခြင်း
-try:
-    if "GEMINI_API_KEY" in st.secrets:
-        api_key = st.secrets["GEMINI_API_KEY"]
-        genai.configure(api_key=api_key)
-    else:
-        st.error("Secrets ထဲမှာ GEMINI_API_KEY ကို မတွေ့ရပါ။ Settings တွင် အရင်ထည့်ပေးပါ။")
-        st.stop()
-except Exception as e:
-    st.error(f"Secrets Error: {e}")
+# Secrets ထဲက Key ကို ယူခြင်း
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("API Key မတွေ့ပါ။")
     st.stop()
 
 st.title("🎬 Movie Recap AI")
-
-movie_name = st.text_input("ဇာတ်ကားနာမည် ရိုက်ပါ:", placeholder="ဥပမာ - Titanic")
+movie_name = st.text_input("ဇာတ်ကားနာမည် ရိုက်ပါ:")
 
 if st.button("Recap ရေးခိုင်းမယ်"):
     if movie_name:
-        with st.spinner('AI က စဉ်းစားနေပါတယ်...'):
+        with st.spinner('ခဏစောင့်ပါ...'):
             try:
-                # Model နာမည်ကို အရှင်းဆုံးပုံစံဖြင့် သုံးကြည့်ပါ
+                # ဤနေရာတွင် gemini-1.5-flash ဟုသာ ရေးပါ
                 model = genai.GenerativeModel('gemini-1.5-flash')
                 response = model.generate_content(f"Write a movie recap for {movie_name} in Burmese.")
-                
-                st.success(f"'{movie_name}' အတွက် ရလဒ် ရပါပြီ")
                 st.write(response.text)
             except Exception as e:
                 st.error(f"Error: {e}")
-                st.info("API Key အသစ်တစ်ခုဖြင့် ပြန်စမ်းကြည့်ရန် အကြံပြုပါသည်။")
-    else:
-        st.warning("ဇာတ်ကားနာမည် ရိုက်ပေးပါ။")
-
+                
