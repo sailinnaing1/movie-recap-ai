@@ -5,7 +5,7 @@ import google.generativeai as genai
 if "GEMINI_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 else:
-    st.error("API Key မတွေ့ပါ။ Settings > Secrets တွင် အရင်ထည့်ပါ။")
+    st.error("API Key မတွေ့ပါ။")
     st.stop()
 
 st.title("🎬 Movie Recap AI")
@@ -15,15 +15,14 @@ if st.button("Recap ရေးခိုင်းမယ်"):
     if movie_name:
         with st.spinner('AI က ဇာတ်လမ်းကို စဉ်းစားနေပါတယ်...'):
             try:
-                # Model နာမည်ကို models/ မပါဘဲ အခုလိုပဲ ရေးကြည့်ပါ
-                model = genai.GenerativeModel('gemini-1.5-flash')
-                response = model.generate_content(f"Write a movie recap for {movie_name} in Burmese.")
+                # သင့် API Key နှင့် အလုပ်လုပ်သော Model အသစ်ကို ပြောင်းသုံးပါ
+                model = genai.GenerativeModel('gemini-2.5-flash')
+                
+                prompt = f"Write a comprehensive movie recap of '{movie_name}' in Burmese language."
+                response = model.generate_content(prompt)
+                
+                st.success(f"'{movie_name}' အတွက် ရလဒ် ရပါပြီ")
                 st.write(response.text)
             except Exception as e:
-                # Error တက်ရင် ဘယ် Model တွေ သုံးလို့ရလဲဆိုတာ ပြခိုင်းမယ်
                 st.error(f"Error: {e}")
-                st.write("အသုံးပြုနိုင်သော Model များစာရင်း:")
-                for m in genai.list_models():
-                    if 'generateContent' in m.supported_generation_methods:
-                        st.write(f"- {m.name}")
-                        
+                
