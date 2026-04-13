@@ -1,34 +1,35 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Streamlit Secrets ထဲကနေ API Key ကို ယူတာဖြစ်လို့ ပိုလုံခြုံပါတယ်
+# ၁။ Secrets ထဲက API Key ကို ယူခြင်း
 try:
-    api_key = st.secrets["GEMINI_API_KEY"]
-    genai.configure(api_key=api_key)
-except:
-    st.error("Secrets ထဲမှာ 'GEMINI_API_KEY' ကို မထည့်ရသေးပါဘူး။")
+    if "GEMINI_API_KEY" in st.secrets:
+        api_key = st.secrets["GEMINI_API_KEY"]
+        genai.configure(api_key=api_key)
+    else:
+        st.error("Secrets ထဲမှာ GEMINI_API_KEY ကို မတွေ့ရပါ။ Settings တွင် အရင်ထည့်ပေးပါ။")
+        st.stop()
+except Exception as e:
+    st.error(f"Secrets Error: {e}")
     st.stop()
 
-st.set_page_config(page_title="Movie Recap AI", page_icon="🎬")
 st.title("🎬 Movie Recap AI")
-st.write("ဇာတ်ကားနာမည် ရိုက်ထည့်ပြီး မြန်မာလို Recap ရေးခိုင်းပါ။")
 
 movie_name = st.text_input("ဇာတ်ကားနာမည် ရိုက်ပါ:", placeholder="ဥပမာ - Titanic")
 
 if st.button("Recap ရေးခိုင်းမယ်"):
     if movie_name:
-        with st.spinner('AI က ဇာတ်လမ်းကို စဉ်းစားနေပါတယ်...'):
+        with st.spinner('AI က စဉ်းစားနေပါတယ်...'):
             try:
-                # Model နာမည်ကို အမှားကင်းအောင် models/gemini-1.5-flash ဟု သုံးထားပါသည်
-                model = genai.GenerativeModel('models/gemini-1.5-flash')
+                # Model နာမည်ကို အရှင်းဆုံးပုံစံဖြင့် သုံးကြည့်ပါ
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(f"Write a movie recap for {movie_name} in Burmese.")
                 
-                prompt = f"Please write a comprehensive movie recap of '{movie_name}' in Burmese language. Focus on the main plot, characters, and the ending."
-                response = model.generate_content(prompt)
-                
-                st.success(f"'{movie_name}' အတွက် ဇာတ်လမ်းအညွှန်း ရပါပြီ")
-                st.markdown(response.text)
+                st.success(f"'{movie_name}' အတွက် ရလဒ် ရပါပြီ")
+                st.write(response.text)
             except Exception as e:
-                st.error(f"Error တက်သွားပါတယ်- {e}")
+                st.error(f"Error: {e}")
+                st.info("API Key အသစ်တစ်ခုဖြင့် ပြန်စမ်းကြည့်ရန် အကြံပြုပါသည်။")
     else:
-        st.warning("ကျေးဇူးပြု၍ ဇာတ်ကားနာမည် အရင်ရိုက်ပေးပါ။")
-        
+        st.warning("ဇာတ်ကားနာမည် ရိုက်ပေးပါ။")
+
